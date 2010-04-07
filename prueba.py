@@ -2,6 +2,7 @@
 
 from analizador import *
 
+
 a = T_var('a')
 print a
 
@@ -17,8 +18,15 @@ print atob
 atoa = T_funcion(a,a)
 print atoa
 
+
 print remplazar(a,btobool,atob)
 
 print remplazar(a,btobool,atoa)
 
+print sustituir([(a,btobool)],atob)
+
+print sustituir([(b,T_var('c'))],sustituir([(a,btobool)],atob))
+
 print sustituir([(a,btobool),(b,T_var('c'))], atob)
+
+print sustituir([(b,a)],T_parentesis(b))
