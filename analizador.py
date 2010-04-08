@@ -171,7 +171,21 @@ def unif(t1,t2):
     else: raise 'No Unifica (Falta Algun Caso)'
     
 
-def extender
+def tipo(exp):
+    
+    # Entero
+    if isinstace(exp,Entero): return Int(exp.izq)
+    
+    # Booleano
+    if isinstace(exp,Booleano): return Bool(exp.izq)
+
+
+vacio = lambda x: 'Ambiente Vacio'
+amb = lambda exp: vacio
+extender = lambda (v,t): lambda amb: lambda x: (x == v and t) or (amb(x)) 
+
+
+'''      
 
 def amb(env,exp):
     
@@ -188,14 +202,14 @@ def amb(env,exp):
         raise 'Error (a)'
     
     # Suma o Menor
-    if isinstace(exp,Suma) || isinstance(exp,menor):
-        if isinstance(amb(env,exp.izq),Int) && isinstance(amb(env,exp.der),Int): 
+    if isinstance(exp,Suma) or isinstance(exp,menor):
+        if isinstance(amb(env,exp.izq),Int) and isinstance(amb(env,exp.der),Int): 
             return Int()
         raise 'Error (b)'
     
     # Conjuncion
     if isinstace(exp,Conjuncion):
-        if isinstance(amb(env,exp.izq),Bool) && isinstance(amb(env,exp.der),Bool): 
+        if isinstance(amb(env,exp.izq),Bool) and isinstance(amb(env,exp.der),Bool): 
             return Int()
         raise 'Error (c)'
 
@@ -210,7 +224,8 @@ def amb(env,exp):
         e1 = exp.izq
         e2 = exp.der
         a1 = amb(env,e1)
-        if isinstance(a1,T_funcion) && amb(env,e1) == a1.domino:
+        if isinstance(a1,T_funcion) and amb(env,e1) == a1.domino:
             return a1.rango
         raise 'Error (d)'
             
+'''
