@@ -1,6 +1,8 @@
 #! /usr/bin/python
 
+from pylog import *
 from exception import *
+
 
 # Expresiones
 
@@ -131,30 +133,6 @@ def printrec(lista):
         print '(', l1[0] , ',' , l1[1].__class__,  '),',
     print ']',
 
-# Imprime listas de tuplas de tipos
-def printrec2(lista):
-    print '[',
-    for l1 in lista:
-        print '(', l1[0] , ',' , l1[1],  '),',
-    print ']',
-
-# Chequea Ocurrencia de una variable en un tipo
-def ocurre(x,t):
-
-    # x entre parfentesis
-    if isinstance(x,T_parentesis): return ocurre(x.t,t)
-
-    # t entre parentesis
-    if isinstance(t,T_parentesis): return ocurre(x,t.t)
-
-    # t es variable
-    if isinstance(t,T_var): return x.t == t.t
-
-    # t es funcion
-    if isinstance(t,T_funcion): return ocurre(x,t.dominio) or ocurre(x,t.rango)
-        
-    return False    
-
 
 # Unificacion sin revision de ocurrencia
 def unif(t1,t2):
@@ -174,13 +152,15 @@ def unif(t1,t2):
     # t1 es entero, solo unifica con el mismo
     if isinstance(t1,Int):
         if isinstance(t2,Int): return []
-        else: raise A_Excep("No unifica (2)")
-
+        else: 
+            print  t1, t2
+            print isinstance(t2,T_var)
+            raise A_Excep("no unifica 2")
 
     # t1 es booleano, solo unifica con el mismo
     if isinstance(t1,Bool):
         if isinstance(t2,Bool): return []
-        else: A_Excep("No Unifica (3)")
+        else: A_Excep("No Unifica 3")
 
     # t1 es funcion
     if isinstance(t1,T_funcion):
@@ -189,38 +169,71 @@ def unif(t1,t2):
             aux1 = sustituir(temp,t1.rango)
             aux2 = sustituir(temp,t2.rango)
             return componer(temp,unif(aux1,aux2))
-        else: raise A_Excep("No Unifica (4)")
+        else: raise A_Excep("No Unifica 4")
     
-    else: raise A_Excep("No Unifica (Falta Algun Caso)")
+    else:
+        
+        print  t1.izq, t2.__class__
+        print isinstance(t2,T_var)
+        raise 'No Unifica (Falta Algun Caso)'
+    
+
+def tipo(exp):
+    
+    # Entero
+    if isinstace(exp,Entero): return Int(exp.izq)
+    
+    # Booleano
+    if isinstace(exp,Booleano): return Bool(exp.izq)
 
 
 vacio = lambda x: 'Ambiente Vacio'
+#Amb = lambda exp: Int(exp.izq) if isinstance(exp,Entero) else (vacio
+'''
+def Amb(exp):
+    print 'bbb' ,exp
+    if isinstance(exp,Entero): return Int(exp.izq)
+    if isinstance(exp,Bool): return Bool(exp.izq)
+    return vacio
+'''
 extender = lambda (v,t): lambda amb: lambda x: t if x == v else amb(x) 
 
 
 def asigTipo(Amb, exp, T ): 
+    print 'exp', exp, 'T',T.__class__ 
 
     if isinstance(exp,Entero): return unif(T, Int(1))
     
     if isinstance(exp,Booleano): return unif(T, Bool(true))
     
     if isinstance(exp,E_var):
-        return unif(T, Amb(exp))
+        e = Amb(exp)
+        print 'ddd', isinstance(exp,Entero), e.__class__, T.__class__
+        return unif(T, e)
     
     if isinstance(exp,Suma): 
+        #print 'aaa' ,exp.izq
         s1 = asigTipo(Amb,exp.izq,Int(1))
-        s2 = componer(s1,asigTipo(Amb,exp.der,Int(1)))
-        return componer(s2,unif(T,Int(1)))
+        #print 's1' , printrec(s1)
+        #print ' '
+        asig = asigTipo(Amb,exp.der,Int(1))
+        #print 'asig', asig
+        s2 = componer(s1,asig)
+        #print 's2' , printrec(s2)
+        #print 'T',T
+        u = unif(T,Int(1))
+        #print 'u', printrec(u)
+        return componer(s2,u)
                              
     if isinstance(exp,Menor): 
         s1 = asigTipo(Amb, exp.izq,Int(1))
         s2 = componer(s1,asigTipo(Amb,exp.der,Int(1)))
-        return componer(s2,unif(T,Bool('true')))
+        return componer(s2,unif(T,Bool(true)))
 
     if isinstance(exp,Conjuncion): 
-        s1 = asigTipo(Amb,exp.izq,Bool('true'))
-        s2 = componer(s1,asigTipo(Amb,exp.der,Bool('true')))
-        return componer(s2,unif(T,Bool('true')))
+        s1 = asigTipo(Amb,exp.izq,Bool)
+        s2 = componer(s1,asigTipo(Amb,exp.der,Bool))
+        return componer(s2,unif(T,Bool))
 
     if isinstance(exp,E_funcion):
         Amb1 = extender((exp.izq,T_var('a')),Amb)
@@ -231,4 +244,51 @@ def asigTipo(Amb, exp, T ):
         s1 = asigTipo(Amb,exp.der,T_var('a'))            
         return componer(s1,asigTipo(Amb,exp.izq,T_funcion(sustituir(s1,a),T)))
 
-    raise A_Excep("Error en AsigTipo")
+    raise A_Excep("asigna")
+
+
+'''      
+>>>>>>> c9bcc6a60af6767aa55a85abe9f28d4213fcdcf3:analizador.py
+
+def amb(env,exp):
+    
+    # Entero
+    if isinstace(exp,Entero): return Int(exp.izq)
+    
+    # Booleano
+    if isinstace(exp,Booleano): return Bool(exp.izq)
+   
+    # Variable
+    if isinstace(exp,E_var):
+        for a in env:
+            if a[0] == exp: return a[1]
+        raise 'Error (a)'
+    
+    # Suma o Menor
+    if isinstance(exp,Suma) or isinstance(exp,menor):
+        if isinstance(amb(env,exp.izq),Int) and isinstance(amb(env,exp.der),Int): 
+            return Int()
+        raise 'Error (b)'
+    
+    # Conjuncion
+    if isinstace(exp,Conjuncion):
+        if isinstance(amb(env,exp.izq),Bool) and isinstance(amb(env,exp.der),Bool): 
+            return Int()
+        raise 'Error (c)'
+
+    # Funcion
+    if isinstace(exp,E_funcion):
+        t1 = amb(env,exp.izq)
+        t2 = amb(env,exp.der)
+        return T_funcion(t1,t2)
+
+    # Aplicacion
+    if isinstace(exp,Aplicacion):
+        e1 = exp.izq
+        e2 = exp.der
+        a1 = amb(env,e1)
+        if isinstance(a1,T_funcion) and amb(env,e1) == a1.domino:
+            return a1.rango
+        raise 'Error (d)'
+            
+'''
