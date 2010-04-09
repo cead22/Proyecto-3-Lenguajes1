@@ -1,0 +1,3 @@
+from analizador import *
+
+x,y,z = T_var('x'), T_var('y'), T_var('z')
