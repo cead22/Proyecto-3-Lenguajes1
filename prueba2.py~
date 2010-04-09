@@ -23,4 +23,4 @@ t32 =   T_funcion(T_var("b1"),(T_funcion(T_var("x1"), (T_funcion(T_var("c"),T_va
 
 printrec(unif(t31,t32))
 
-#printrec(unif(i1,i2))
+printrec(unif(i1,i2))

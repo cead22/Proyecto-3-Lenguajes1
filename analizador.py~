@@ -138,10 +138,10 @@ def printrec(lista):
 def unif(t1,t2):
     
     # t1 entre parentesis
-    if isinstance(t1,T_parentesis): return unif(t1.t,t2)
+    if isinstance(t1,T_parentesis): return unif(t1.v,t2)
 
     # t2 entre parentesis
-    if isinstance(t2,T_parentesis): return unif(t1,t2.t)
+    if isinstance(t2,T_parentesis): return unif(t1,t2.v)
 
     # t1 es variable, unifica con todo
     if isinstance(t1,T_var): return [(t1,t2)]
