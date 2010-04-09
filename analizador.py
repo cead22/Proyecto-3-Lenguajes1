@@ -1,6 +1,7 @@
 #! /usr/bin/python
 
 from pylog import *
+from exception import *
 
 
 # Expresiones
@@ -31,9 +32,8 @@ class E_funcion(ExpresionBinaria): pass
 # Tipos 
 class Tipo:
 
-    def __init__(self):
-        #pass
-        self.t = 'Tipo'
+    #def __init__(self):pass
+        #self.t = 'Tipo'
 
     def __init__(self,t):
         self.t = t
@@ -130,13 +130,13 @@ def componer(s1,s2):
 def printrec(lista):
     print '[',
     for l1 in lista:
-        print '(', l1[0] , ',' , l1[1],  '),',
+        print '(', l1[0] , ',' , l1[1].__class__,  '),',
     print ']',
 
 
 # Unificacion sin revision de ocurrencia
 def unif(t1,t2):
-    
+
     # t1 entre parentesis
     if isinstance(t1,T_parentesis): return unif(t1.t,t2)
 
@@ -152,12 +152,15 @@ def unif(t1,t2):
     # t1 es entero, solo unifica con el mismo
     if isinstance(t1,Int):
         if isinstance(t2,Int): return []
-        else: raise 'No Unifica (2)'
+        else: 
+            print  t1, t2
+            print isinstance(t2,T_var)
+            raise A_Excep("no unifica 2")
 
     # t1 es booleano, solo unifica con el mismo
     if isinstance(t1,Bool):
         if isinstance(t2,Bool): return []
-        else: raise 'No Unifica (3)'
+        else: A_Excep("No Unifica 3")
 
     # t1 es funcion
     if isinstance(t1,T_funcion):
@@ -166,12 +169,86 @@ def unif(t1,t2):
             aux1 = sustituir(temp,t1.rango)
             aux2 = sustituir(temp,t2.rango)
             return componer(temp,unif(aux1,aux2))
-        else: raise 'No Unifica (4)'
+        else: raise A_Excep("No Unifica 4")
     
-    else: raise 'No Unifica (Falta Algun Caso)'
+    else:
+        
+        print  t1.izq, t2.__class__
+        print isinstance(t2,T_var)
+        raise A_Excep("No Unifica (Falta Algun Caso)")
     
 
-#def extender
+def tipo(exp):
+    
+    # Entero
+    if isinstace(exp,Entero): return Int(exp.izq)
+    
+    # Booleano
+    if isinstace(exp,Booleano): return Bool(exp.izq)
+
+
+vacio = lambda x: 'Ambiente Vacio'
+#Amb = lambda exp: Int(exp.izq) if isinstance(exp,Entero) else (vacio
+'''
+def Amb(exp):
+    print 'bbb' ,exp
+    if isinstance(exp,Entero): return Int(exp.izq)
+    if isinstance(exp,Bool): return Bool(exp.izq)
+    return vacio
+'''
+extender = lambda (v,t): lambda amb: lambda x: t if x == v else amb(x) 
+
+
+def asigTipo(Amb, exp, T ): 
+    print 'exp', exp, 'T',T.__class__ 
+
+    if isinstance(exp,Entero): return unif(T, Int(1))
+    
+    if isinstance(exp,Booleano): return unif(T, Bool(true))
+    
+    if isinstance(exp,E_var):
+        e = Amb(exp)
+        print 'ddd', isinstance(exp,Entero), e.__class__, T.__class__
+        return unif(T, e)
+    
+    if isinstance(exp,Suma): 
+        #print 'aaa' ,exp.izq
+        s1 = asigTipo(Amb,exp.izq,Int(1))
+        #print 's1' , printrec(s1)
+        #print ' '
+        asig = asigTipo(Amb,exp.der,Int(1))
+        #print 'asig', asig
+        s2 = componer(s1,asig)
+        #print 's2' , printrec(s2)
+        #print 'T',T
+        u = unif(T,Int(1))
+        #print 'u', printrec(u)
+        return componer(s2,u)
+                             
+    if isinstance(exp,Menor): 
+        s1 = asigTipo(Amb, exp.izq,Int(1))
+        s2 = componer(s1,asigTipo(Amb,exp.der,Int(1)))
+        return componer(s2,unif(T,Bool(true)))
+
+    if isinstance(exp,Conjuncion): 
+        s1 = asigTipo(Amb,exp.izq,Bool)
+        s2 = componer(s1,asigTipo(Amb,exp.der,Bool))
+        return componer(s2,unif(T,Bool))
+
+    if isinstance(exp,E_funcion):
+        Amb1 = extender((exp.izq,T_var('a')),Amb)
+        s1 = asigTipo(Amb1,exp.der, T_var('b'))
+        return componer(s1,unif(T,sustituir(s1,T_funcion(T_var('a'),T_var('b')))))
+
+    if isinstance(exp,Aplicacion):
+        s1 = asigTipo(Amb,exp.der,T_var('a'))            
+        return componer(s1,asigTipo(Amb,exp.izq,T_funcion(sustituir(s1,a),T)))
+
+    raise A_Excep("asigna")
+
+
+'''      
+>>>>>>> c9bcc6a60af6767aa55a85abe9f28d4213fcdcf3:analizador.py
 
 def amb(env,exp):
     
@@ -214,3 +291,4 @@ def amb(env,exp):
             return a1.rango
         raise 'Error (d)'
             
+'''
