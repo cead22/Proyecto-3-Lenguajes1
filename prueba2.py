@@ -1,5 +1,5 @@
 from analizador import *
-
+'''
 from analizador import T_funcion
 
 s1 = [(T_var("a"),T_var("b"))]
@@ -14,3 +14,23 @@ i2 = Int(6)
 f = T_funcion(T_var("d"),T_var("e"))
 
 printrec(unif(i1,i2))
+
+print ''
+print  '---------------'
+
+'''
+x = E_var('x')
+a = T_var('a')
+s1 = [(x,a)]
+s = lambda z: T_var('a') if z == x else vacio
+def Amb(exp):
+    print 'bbb' ,exp
+    if isinstance(exp,E_var) and exp.izq == 'x': return T_var('a')
+    if isinstance(exp,Entero): return Int(exp.izq)
+    if isinstance(exp,Bool): return Bool(exp.izq)
+    return vacio
+uno = Entero(1)
+
+#print s(x).__class__
+
+printrec( asigTipo(Amb,Menor(x,uno),T_var('b')))
