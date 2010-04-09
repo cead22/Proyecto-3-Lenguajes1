@@ -151,8 +151,10 @@ def ocurre(x,t):
     if isinstance(t,T_var): return x.t == t.t
 
     # t es funcion
-    if isinstance(t,T_funcion): return ocurre(x,t.dominio) or ocurre(x,t.rango)
-        
+    if isinstance(t,T_funcion):
+        if isinstance(t.dominio,T_funcion): return ocurre(x,t.dominio) or ocurre(x,t.rango)        
+        if isinstance(t.rango,T_var): return ocurre(x,t.dominio)
+        if isinstance(t.rango,T_funcion): return ocurre(x,t.dominio) or ocurre(x,t.rango)        
     return False    
 
 
@@ -166,10 +168,10 @@ def unif(t1,t2):
     if isinstance(t2,T_parentesis): return unif(t1,t2.t)
 
     # t1 es variable, unifica con todo
-    if isinstance(t1,T_var): return [(t1,t2)]
+    if isinstance(t1,T_var) and not ocurre(t1,t2): return [(t1,t2)]
 
     # t2 es variable, unifica con todo
-    if isinstance(t2,T_var): return [(t2,t1)]
+    if isinstance(t2,T_var) and not ocurre(t2,t1): return [(t2,t1)]
 
     # t1 es entero, solo unifica con el mismo
     if isinstance(t1,Int):
