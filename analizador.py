@@ -168,10 +168,12 @@ def unif(t1,t2):
     if isinstance(t2,T_parentesis): return unif(t1,t2.t)
 
     # t1 es variable, unifica con todo
-    if isinstance(t1,T_var) and not ocurre(t1,t2): return [(t1,t2)]
+#    if isinstance(t1,T_var) and not ocurre(t1,t2): return [(t1,t2)]
+    if isinstance(t1,T_var): return [(t1,t2)]
 
     # t2 es variable, unifica con todo
-    if isinstance(t2,T_var) and not ocurre(t2,t1): return [(t2,t1)]
+#    if isinstance(t2,T_var) and not ocurre(t2,t1): return [(t2,t1)]
+    if isinstance(t2,T_var): return [(t2,t1)]
 
     # t1 es entero, solo unifica con el mismo
     if isinstance(t1,Int):
@@ -204,10 +206,9 @@ def asigTipo(Amb, exp, T ):
 
     if isinstance(exp,Entero): return unif(T, Int(1))
     
-    if isinstance(exp,Booleano): return unif(T, Bool(true))
+    if isinstance(exp,Booleano): return unif(T, Bool('true'))
     
-    if isinstance(exp,E_var):
-        return unif(T, Amb(exp))
+    if isinstance(exp,E_var): return unif(T, Amb(exp))
     
     if isinstance(exp,Suma): 
         s1 = asigTipo(Amb,exp.izq,Int(1))
@@ -225,8 +226,9 @@ def asigTipo(Amb, exp, T ):
         return componer(s2,unif(T,Bool('true')))
 
     if isinstance(exp,E_funcion):
-        Amb1 = extender((exp.izq,T_var('a')),Amb)
+        Amb1 = extender((exp.izq,T_var('a')))(Amb)
         s1 = asigTipo(Amb1,exp.der, T_var('b'))
+        print 'sssss',printrec(s1)
         return componer(s1,unif(T,sustituir(s1,T_funcion(T_var('a'),T_var('b')))))
 
     if isinstance(exp,Aplicacion):

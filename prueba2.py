@@ -32,19 +32,21 @@ print ''
 print  '---------------'
 
 '''
-x = Int('x')
+x = E_var('x')
 a = T_var('a')
 s1 = [(x,a)]
 s = lambda z: T_var('a') if z == x else vacio
 def Amb(exp):
     #print 'bbb' ,exp
-    if isinstance(exp,E_var) and exp.izq == 'x': return T_var('a')
+    if isinstance(exp,E_var) and exp.izq == 'x': return T_var('y')
     if isinstance(exp,Entero): return Int(exp.izq)
-    if isinstance(exp,Bool): return Bool(exp.izq)
+    if isinstance(exp,Booleano): return Bool(exp.izq)
     return vacio
 uno = Entero(1)
 
 #print s(x).__class__
 
-printrec( asigTipo(Amb,Menor(x,uno),T_var('b')))
+res=asigTipo(Amb,E_funcion(x,x),T_var('h'))
+print res[1][1]
+printrec(res)
 
