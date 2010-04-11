@@ -37,7 +37,7 @@ class Tipo:
         self.t = t
 
     def __str__(self):
-        return str(self.t)
+        return str(self.__class__)
 
 class Int(Tipo): pass
 
@@ -75,16 +75,24 @@ class T_funcion(Tipo):
     def __str__(self):
         return str(self.dominio) + '-->' + str(self.rango)
 
+
 def sustituir(lista,tipo):
+
+    '''Una sustitucion es una lista de pares (variable de tipo, tipo).
+    La aplicacion de una sustitucion a un tipo consiste en remplazar en
+    el tipo cada una de las variables sustituidas por su correspondiente valor.
+    lista es una sustitucion y tipo es de la clase Tipo'''
+
     for tupla in lista:
         tipo = remplazar(tupla[0],tupla[1],tipo)
     return tipo
         
-# var es T_var
-# tipo es Tipo
-# tipo_destino es Tipo
+
 def remplazar(var,tipo,tipo_destino):
-    
+
+    '''Remplaza las ocurrencias de var por tipo en tipo_destino.
+    var es de clase T_var, tipo y tipo_destino son de clase Tipo'''
+
     # misma variable de tipo que tipo ej: (a,a,a-->int)
     if var.t == tipo.t: return tipo_destino
 
@@ -103,10 +111,12 @@ def remplazar(var,tipo,tipo_destino):
     return T_funcion(dom,ran)
 
 
-# Retorna todos los pares (x1,T1) de s1 y todos
-# los pares (x2,T2) de s2 tales que x2 no sea ningun
-# x1 de s1
 def restar(s1,s2):
+
+    ''' Retorna todos los pares (x1,T1) de s1 y todos
+    los pares (x2,T2) de s2 tales que x2 no sea ningun
+    x1 de s1'''
+
     res = []
     for par2 in  s2:
         for par1 in s1:
@@ -114,9 +124,12 @@ def restar(s1,s2):
                 res = res + [par2]
     return res
 
-# Retorna la sustitucion que resulta de componer
-# las sustituciones s1 con s2
+
 def componer(s1,s2):
+
+    '''Retorna la sustitucion que resulta de componer
+    las sustituciones s1 con s2'''
+
     res = restar(s1,s2)
     for s in s1:
         x1 = s[0]
@@ -124,42 +137,30 @@ def componer(s1,s2):
         res = res + [(x1,sustituir(s2,t1))]
     return res
 
-# Imprime listas de tuplas de tipos
+
 def printrec(lista):
+
+    '''Imprime listas de tuplas de tipos'''
+
     print '[',
     for l1 in lista:
         print '(', l1[0] , ',' , l1[1].__class__,  '),',
     print ']',
 
-# Imprime listas de tuplas de tipos
+
 def printrec2(lista):
+
+    '''Imprime listas de tuplas de tipos'''
+
     print '[',
     for l1 in lista:
         print '(', l1[0] , ',' , l1[1],  '),',
     print ']',
 
-# Chequea Ocurrencia de una variable en un tipo
-def ocurre(x,t):
 
-    # x entre parfentesis
-    if isinstance(x,T_parentesis): return ocurre(x.t,t)
-
-    # t entre parentesis
-    if isinstance(t,T_parentesis): return ocurre(x,t.t)
-
-    # t es variable
-    if isinstance(t,T_var): return x.t == t.t
-
-    # t es funcion
-    if isinstance(t,T_funcion):
-        if isinstance(t.dominio,T_funcion): return ocurre(x,t.dominio) or ocurre(x,t.rango)        
-        if isinstance(t.rango,T_var): return ocurre(x,t.dominio)
-        if isinstance(t.rango,T_funcion): return ocurre(x,t.dominio) or ocurre(x,t.rango)        
-    return False    
-
-
-# Unificacion sin revision de ocurrencia
 def unif(t1,t2):
+
+    '''Algoritmo de Unificacion'''
 
     # t1 entre parentesis
     if isinstance(t1,T_parentesis): return unif(t1.t,t2)
@@ -168,18 +169,15 @@ def unif(t1,t2):
     if isinstance(t2,T_parentesis): return unif(t1,t2.t)
 
     # t1 es variable, unifica con todo
-#    if isinstance(t1,T_var) and not ocurre(t1,t2): return [(t1,t2)]
     if isinstance(t1,T_var): return [(t1,t2)]
 
     # t2 es variable, unifica con todo
-#    if isinstance(t2,T_var) and not ocurre(t2,t1): return [(t2,t1)]
     if isinstance(t2,T_var): return [(t2,t1)]
 
     # t1 es entero, solo unifica con el mismo
     if isinstance(t1,Int):
         if isinstance(t2,Int): return []
         else: raise A_Excep("No unifica (2)")
-
 
     # t1 es booleano, solo unifica con el mismo
     if isinstance(t1,Bool):
@@ -195,7 +193,7 @@ def unif(t1,t2):
             return componer(temp,unif(aux1,aux2))
         else: raise A_Excep("No Unifica (4)")
     
-    else: raise A_Excep("No Unifica (Falta Algun Caso)")
+    else: raise A_Excep("No Unifica")
 
 
 vacio = lambda x: 'Ambiente Vacio'
@@ -203,6 +201,9 @@ extender = lambda (v,t): lambda amb: lambda x: t if x == v else amb(x)
 
 
 def asigTipo(Amb, exp, T ): 
+    '''Asigna un tipo a una expresion'''
+
+    if isinstance(exp,E_parentesis): return asigTipo(Amb,exp.izq,T)
 
     if isinstance(exp,Entero): return unif(T, Int(1))
     
@@ -228,7 +229,6 @@ def asigTipo(Amb, exp, T ):
     if isinstance(exp,E_funcion):
         Amb1 = extender((exp.izq,T_var('a')))(Amb)
         s1 = asigTipo(Amb1,exp.der, T_var('b'))
-        print 'sssss',printrec(s1)
         return componer(s1,unif(T,sustituir(s1,T_funcion(T_var('a'),T_var('b')))))
 
     if isinstance(exp,Aplicacion):

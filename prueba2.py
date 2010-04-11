@@ -1,52 +1,138 @@
 from analizador import *
-'''
-from analizador import T_funcion
 
-s1 = [(T_var("a"),T_var("b"))]
-s2 = [(T_var("b"),T_funcion(T_var("d"),T_var("e")))]
-c = componer(s1,s2)
-printrec([(T_funcion(T_var("d"),T_var("e")),5)])
-
-print ''
-
-i1 = Int(5)
-i2 = Int(6)
-f = T_funcion(T_var("d"),T_var("e"))
-
-<<<<<<< HEAD:prueba2.py
-t11 =  T_funcion(T_var("a"),Int(4))
-t12 =  T_funcion(T_var("v"),Int(4))
-t21 =   T_funcion(T_var("b"), (T_funcion(T_var("c"),T_var("c"))))
-t22 =   T_funcion(T_var("b"), (T_funcion(T_var("c"),T_var("c"))))
-
-t31 =   T_funcion(T_var("b"), (T_funcion(T_var("x"),T_var("x"))))
-t32 =   T_funcion(T_var("b1"),(T_funcion(T_var("x1"), (T_funcion(T_var("c"),T_var("c"))))))
-
-printrec(unif(t31,t32))
-
-#printrec(unif(i1,i2))
-=======
-printrec(unif(i1,i2))
-
-print ''
-print  '---------------'
-
-'''
-x = E_var('x')
-a = T_var('a')
-s1 = [(x,a)]
-s = lambda z: T_var('a') if z == x else vacio
-def Amb(exp):
-    #print 'bbb' ,exp
-    if isinstance(exp,E_var) and exp.izq == 'x': return T_var('y')
-    if isinstance(exp,Entero): return Int(exp.izq)
-    if isinstance(exp,Booleano): return Bool(exp.izq)
-    return vacio
+# entero
 uno = Entero(1)
 
-#print s(x).__class__
+# booleano
+true = Booleano('true')
 
-res=asigTipo(Amb,E_funcion(x,x),T_var('h'))
-print res[1][1]
-printrec(res)
+# var
+x = E_var('x')
+y = E_var('y')
 
+
+# (E)
+paren = E_parentesis(x)
+
+# E1 + E2
+suma = Suma(x,y)
+
+# E1 < E2
+menor = Menor(x,y)
+
+# E1 ^ E2
+conj = Conjuncion(x,y)
+
+# E1 E2
+apl = Aplicacion(x,y)
+
+# lambda var.E
+fun1 = E_funcion(x,x) # lambda x.(x+x)
+fun2 = E_funcion(x,Suma(x,uno)) # lamba x.(x+1)
+fun3 = E_funcion(x,Conjuncion(x,true)) # lamba x.(x ^ true)
+
+
+#a = T_var('a')
+i  = T_var('i')
+b  = T_var('b')
+#y = T_var('y')
+
+
+# Ambiente con [(x,i)]
+def Amb_1(exp):
+    if isinstance(exp,E_var) and exp.izq == 'x': return i
+    return vacio
+
+# Ambiente con [(x,i),(y,i)]
+def Amb_2(exp):
+    if isinstance(exp,E_var) and exp.izq == 'x': return i
+    if isinstance(exp,E_var) and exp.izq == 'y': return i
+    return vacio
+
+# Ambiente con [(x,b),(y,b)]
+def Amb_3(exp):
+    if isinstance(exp,E_var) and exp.izq == 'x': return b
+    if isinstance(exp,E_var) and exp.izq == 'y': return b
+    return vacio
+
+# Ambiente con [(x,i),(y,b)]
+def Amb_4(exp):
+    if isinstance(exp,E_var) and exp.izq == 'x': return i
+    if isinstance(exp,E_var) and exp.izq == 'y': return b
+    return vacio
+
+# Tipo de la expresion '1'
+res1 = asigTipo(Amb_1,uno,T_var('r'))
+print 'Tipo de la expresion \'1\''
+printrec(res1)
+print '\n'
+
+# Tipo de la expresion 'true'
+res2 = asigTipo(Amb_1,true,T_var('r'))
+print 'Tipo de la expresion \'true\''
+printrec(res2)
+print '\n'
+
+# Tipo de la expresion 'x'
+res3 = asigTipo(Amb_1,x,T_var('r'))
+print 'Tipo de la expresion \'x\''
+printrec(res3)
+print '\n'
+
+# Tipo de la expresion '(x)'
+res4 = asigTipo(Amb_1,paren,T_var('r'))
+print 'Tipo de la expresion \'(x)\''
+printrec(res4)
+print '\n'
+
+# Tipo de la expresion 'x + y'
+res5 = asigTipo(Amb_2,suma,T_var('r'))
+print 'Tipo de la expresion \'x + y\''
+printrec(res5)
+print '\n'
+ 
+# Tipo de la expresion 'x < x'
+res6 = asigTipo(Amb_2,menor,T_var('r'))
+print 'Tipo de la expresion \'x < y\''
+printrec(res6)
+print '\n'
+
+# Tipo de la expresion 'x ^ true'
+res7 = asigTipo(Amb_3,conj,T_var('r'))
+print 'Tipo de la expresion \'x ^ true\''
+printrec(res7)
+print '\n'
+
+# Tipo de la expresion 'x ^ true'
+res7 = asigTipo(Amb_4,conj,T_var('r'))
+print 'Tipo de la expresion \'x ^ true\''
+print '(misma prueba anterior pero con x de tipo i'
+print 'la salida indica que el tipo i debe ser equivalente a bool)'
+printrec(res7)
+print '\n'
+
+
+# Tipo de la expresion 'f x'
+res8 = asigTipo(Amb_1,fun1,T_var('r'))
+print 'Tipo de la expresion \'fun x\' con fun::a --> a, fun x = x+x'
+printrec(res8)
+print '\n Que internamente es'
+print [(str(res8[0][0]),str(res8[0][1])),(str(res8[1][0]),str(res8[1][1]))]
+print '\n'
+
+
+# Tipo de la expresion 'f x'
+res9 = asigTipo(Amb_1,fun2,T_var('r'))
+print 'Tipo de la expresion \'fun x\' con fun::a --> a, fun x = x+1'
+printrec(res9)
+print '\n Que internamente es'
+print [(str(res9[0][0]),str(res9[0][1])),(str(res9[1][0]),str(res9[1][1]))]
+print '\n'
+
+
+# Tipo de la expresion 'f x'
+res10 = asigTipo(Amb_3,fun3,T_var('r'))
+print 'Tipo de la expresion \'fun x\' con fun::a --> a, fun x = x^true'
+printrec(res10)
+print '\n Que internamente es'
+print [(str(res10[0][0]),str(res10[0][1])),(str(res10[1][0]),str(res10[1][1]))]
