@@ -142,20 +142,11 @@ def printrec(lista):
 
     '''Imprime listas de tuplas de tipos'''
 
-    print '[',
+    s = ''
+
     for l1 in lista:
-        print '(', l1[0] , ',' , l1[1].__class__,  '),',
-    print ']',
-
-
-def printrec2(lista):
-
-    '''Imprime listas de tuplas de tipos'''
-
-    print '[',
-    for l1 in lista:
-        print '(', l1[0] , ',' , l1[1],  '),',
-    print ']',
+        s = s + '(' + str(l1[0]) + ',' + str(l1[1].__class__) +  '),'
+    print '[' + s[:len(s)-1] + ']'
 
 
 def unif(t1,t2):
@@ -233,6 +224,6 @@ def asigTipo(Amb, exp, T ):
 
     if isinstance(exp,Aplicacion):
         s1 = asigTipo(Amb,exp.der,T_var('a'))            
-        return componer(s1,asigTipo(Amb,exp.izq,T_funcion(sustituir(s1,a),T)))
+        return componer(s1,asigTipo(Amb,exp.izq,T_funcion(sustituir(s1,T_var('a')),T)))
 
     raise A_Excep("Error en AsigTipo")

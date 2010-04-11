@@ -23,19 +23,17 @@ menor = Menor(x,y)
 # E1 ^ E2
 conj = Conjuncion(x,y)
 
-# E1 E2
-apl = Aplicacion(x,y)
-
 # lambda var.E
-fun1 = E_funcion(x,x) # lambda x.(x+x)
+fun1 = E_funcion(x,x) # lambda x.x
 fun2 = E_funcion(x,Suma(x,uno)) # lamba x.(x+1)
 fun3 = E_funcion(x,Conjuncion(x,true)) # lamba x.(x ^ true)
 
+# E1 E2
+apl = Aplicacion(fun2,x)
 
-#a = T_var('a')
-i  = T_var('i')
-b  = T_var('b')
-#y = T_var('y')
+# Variables de tipo
+i = T_var('i')
+b = T_var('b')
 
 
 # Ambiente con [(x,i)]
@@ -112,27 +110,32 @@ printrec(res7)
 print '\n'
 
 
-# Tipo de la expresion 'f x'
+# Tipo de la expresion 'f' (funcion)
 res8 = asigTipo(Amb_1,fun1,T_var('r'))
-print 'Tipo de la expresion \'fun x\' con fun::a --> a, fun x = x+x'
+print 'Tipo de la expresion \'fun\' con fun::a --> a, fun x = x'
 printrec(res8)
-print '\n Que internamente es'
-print [(str(res8[0][0]),str(res8[0][1])),(str(res8[1][0]),str(res8[1][1]))]
+print 'con T_funcion ::',str(res8[0][1])
 print '\n'
 
 
-# Tipo de la expresion 'f x'
+# Tipo de la expresion 'f' (funcion)
 res9 = asigTipo(Amb_1,fun2,T_var('r'))
-print 'Tipo de la expresion \'fun x\' con fun::a --> a, fun x = x+1'
+print 'Tipo de la expresion \'fun\' con fun::a --> a, fun x = x+1'
 printrec(res9)
-print '\n Que internamente es'
-print [(str(res9[0][0]),str(res9[0][1])),(str(res9[1][0]),str(res9[1][1]))]
+print 'con T_funcion ::',str(res9[0][1])
 print '\n'
 
 
-# Tipo de la expresion 'f x'
+# Tipo de la expresion 'f' (funcion)
 res10 = asigTipo(Amb_3,fun3,T_var('r'))
-print 'Tipo de la expresion \'fun x\' con fun::a --> a, fun x = x^true'
+print 'Tipo de la expresion \'fun\' con fun::a --> a, fun x = x^true'
 printrec(res10)
-print '\n Que internamente es'
-print [(str(res10[0][0]),str(res10[0][1])),(str(res10[1][0]),str(res10[1][1]))]
+print 'con T_funcion ::',str(res10[0][1])
+print '\n'
+
+
+# Tipo de la expresion 'f x' (funcion)
+res11 = asigTipo(Amb_1,apl,T_var('r'))
+print 'Tipo de la expresion \'fun x\' con fun::a --> a, fun x = x+1'
+printrec(res11)
+print '\n'
